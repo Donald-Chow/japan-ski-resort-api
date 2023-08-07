@@ -1,6 +1,6 @@
 class Api::V1::ResortsController < Api::V1::BaseController
-  acts_as_token_authentication_handler_for User, except: [ :index, :show ]
-  before_action :set_resort, only: [:show]
+  acts_as_token_authentication_handler_for User, except: %i[index show]
+  before_action :set_resort, only: %i[show update]
 
   def index
     @resorts = policy_scope(Resort)
@@ -15,6 +15,14 @@ class Api::V1::ResortsController < Api::V1::BaseController
     authorize @resort
     if @resort.save
       render :show, status: :created
+    else
+      render_error
+    end
+  end
+
+  def update
+    if @resort.update(resort_params)
+      render :show
     else
       render_error
     end
