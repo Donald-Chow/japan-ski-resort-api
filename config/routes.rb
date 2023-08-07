@@ -5,7 +5,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :resorts, only: %i[index show]
+      resources :resorts, only: %i[index show update create]
     end
   end
 end
