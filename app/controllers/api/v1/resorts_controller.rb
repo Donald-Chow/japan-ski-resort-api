@@ -28,6 +28,11 @@ class Api::V1::ResortsController < Api::V1::BaseController
     end
   end
 
+  def destroy
+    @resort.destroy
+    head :no_content
+  end
+
   private
 
   def set_resort
