@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_07_152759) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_07_155951) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,7 +19,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_07_152759) do
     t.string "prefecture"
     t.string "town"
     t.string "address"
-    t.integer "trial_length"
+    t.integer "trail_length"
     t.integer "longest_trial"
     t.integer "skiable_terrain"
     t.integer "number_of_trails"
