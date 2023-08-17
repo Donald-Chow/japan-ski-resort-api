@@ -4,6 +4,9 @@ class Api::V1::ResortsController < Api::V1::BaseController
 
   def index
     @resorts = policy_scope(Resort)
+    return unless params['search']
+
+    @resorts = Resort.search_by_name_and_location(params['search'])
   end
 
   def show

@@ -1,14 +1,18 @@
 # Japan Ski Resort API documentation
+
 The Japan Ski Resort API provide important information about ski resorts in Japan for skiers and snowboarders.
 
 ## Base URL
+
 The base URL of the API is `http://localhost:3000/api/v1/resorts`
 
 ## GET all resorts
-To get the list of all Japan ski reosrts use base URL 
+
+To get the list of all Japan ski reosrts use base URL
 `GET http://localhost:3000/api/v1/resorts`
 
-This will give you the JSON file of all the resort currently in the database:
+This will give you the JSON of all the resort currently in the database:
+
 ```
 [
     {
@@ -29,11 +33,20 @@ This will give you the JSON file of all the resort currently in the database:
 ]
 ```
 
+## Search for resorts
+
+To get a list of all Japan ski resorts using a search, add a `search` parameter to the url:
+`GET http://localhost:3000/api/v1/resorts?search=foo`
+
+This will return you the JSON of all resort currently in the database that matches based on the search query
+
 ## Get ONE resort
+
 To get more details about one Japan ski resort, use the ID of found on the list of ski resort
 ` GET http://localhost:3000/api/v1/resorts/:id`
 
-This you will the JSON file of all the details about the resort:
+This you will the JSON of all the details about the resort:
+
 ```
 {
     "id": 1,
