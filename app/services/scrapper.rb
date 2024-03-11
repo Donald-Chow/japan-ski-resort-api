@@ -2,7 +2,6 @@ require 'nokogiri'
 require 'open-uri'
 
 class Scrapper
-
   def initialize(id)
     @suffix = {
       weather: 'we',
@@ -23,14 +22,13 @@ class Scrapper
       facilities: 'fa',
       access: 'm'
     }
-    @id = "r0788" ## change to variable
+    @id = id ## change to variable
     @url = "https://surfsnow.jp/guide/htm/#{@id}s.htm"
     @weather_url = "https://surfsnow.jp/guide/htm/#{@id}#{@suffix[:weather]}.htm"
     @course_url = "https://surfsnow.jp/guide/htm/#{@id}#{@suffix[:course]}.htm"
   end
 
   def call
-
     # scrapping base webpage
     doc = Nokogiri::HTML(URI.open(@url))
     name = doc.search(".site_title p").children.first.text.strip
@@ -78,15 +76,13 @@ class Scrapper
     longest_trial = course_data['最長滑走距離'].gsub(/\D/, '').to_i
     steepest_gradient = course_data['最大斜度'].gsub(/\D/, '').to_i
 
-
-    # adding admin user
-    ski_resort = {
+    # setting the data into params
+    params = {
       name:,
       prefecture:,
       address:,
       trail_length:,
       longest_trial:,
-      # skiable_terrain: , #course
       number_of_trails:,
       vertical_drop:,
       lift:,
@@ -96,13 +92,12 @@ class Scrapper
       steepest_gradient:,
       difficulty_green:,
       difficulty_red:,
-      difficulty_black:,
+      difficulty_black:
+      # skiable_terrain: , #course
       # terrain_park: #course
-      user:
     }
-    p ski_resort
-    instance = Resort.new(ski_resort)
-    instance.valid?
-    instance.errors.messages
+    resort = Resort.find_or_initialize_by(sns_id: @id)
+    resort.update(params)
+    p resort
   end
 end
