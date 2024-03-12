@@ -92,9 +92,19 @@ class Sns::ResortScrapper < ApplicationService
 
   def scrape_course_on_main_page(doc)
     # scrapping main info box
-    highest_altitude = doc.search("h3.high").text.match(/\d{1,3}(?:,\d{3})*m/).to_s.gsub(/\D/, '').to_i
-    base_altitude = doc.search("h3.base").text.match(/\d{1,3}(?:,\d{3})*m/).to_s.gsub(/\D/, '').to_i
-    number_of_trails = doc.search(".course dl dd").text.to_i
+    unless doc.search("h3.high") == []
+      highest_altitude = doc.search("h3.high").text.match(/\d{1,3}(?:,\d{3})*m/).to_s.gsub(/\D/, '').to_i
+      base_altitude = doc.search("h3.base").text.match(/\d{1,3}(?:,\d{3})*m/).to_s.gsub(/\D/, '').to_i
+    end
+
+    # scrapping course guide on the top
+    course_data = doc.search(".course dl").children.text.split("\n").reject!(&:empty?)
+    unless course_data == [] || course_data.nil?
+      course_data = course_data.each_slice(2).to_h
+      number_of_trails = course_data['コース数']&.to_i
+      steepest_gradient = course_data['最大斜度']&.to_i
+      longest_trial = course_data['最長滑走距離'].gsub(/\D/, '').to_i if course_data['最長滑走距離']
+    end
 
     # formatting difficulty data
     difficulty_data = doc.search(".course td").to_h { |x| x.attribute_nodes.map(&:value) }
@@ -108,7 +118,7 @@ class Sns::ResortScrapper < ApplicationService
 
     # Looking for course info
     if section_info['コース情報']
-      course_info = section_info['コース情報'].split.map { |x| x.split('：') }.to_h
+      course_info = section_info['コース情報'].split.to_h { |x| x.split('：') }
       lift = course_info['リフト本数'].gsub(/\D/, '').to_i if course_info['リフト本数']
     end
 
@@ -122,31 +132,37 @@ class Sns::ResortScrapper < ApplicationService
     hash[:difficulty_green] = difficulty_green if difficulty_green
     hash[:difficulty_red] = difficulty_red if difficulty_red
     hash[:difficulty_black] = difficulty_black if difficulty_black
+    hash[:steepest_gradient] = steepest_gradient if steepest_gradient
+    hash[:longest_trial] = longest_trial if longest_trial
 
     hash
   end
 
   def scrap_course_page(c_doc)
     # formatting course data
-    course_data = c_doc.search('#CourseDataBox .right dl').text.lines.map(&:strip).compact_blank.each_slice(2).to_h
+    course_data = c_doc.search('#CourseDataBox .right dl').to_a.map{|x|x.children.text.strip.split("\n")}.to_h{|key, value| [key, value ? value : ""]}
 
     # format altitude data
-    altitude_data = course_data['標高'].split.map { |x| x.gsub(/\D/, '').to_i }
+    if course_data['標高']
+      altitude_data = course_data['標高'].split.map { |x| x.gsub(/\D/, '').to_i }
 
-    base_altitude = altitude_data[1]
-    highest_altitude = altitude_data[0]
-    vertical_drop = altitude_data[2]
+      base_altitude = altitude_data[1]
+      highest_altitude = altitude_data[0]
+      vertical_drop = altitude_data[2]
+    end
 
     # format lift data
-    lift_data_array = course_data['リフト数'].split.map do |x|
-      matches = x.match(/(.*?)(\d+)/)
-      [matches[1], matches[2]]
+    if course_data['リフト数']
+      lift_data_array = course_data['リフト数'].split.map do |x|
+        matches = x.match(/(.*?)(\d+)/)
+        [matches[1], matches[2]]
+      end
+      lift_data = lift_data_array.to_h.transform_values(&:to_i)
+      gondola = lift_data.delete('ゴンドラ')
+      lift = lift_data.values.sum
     end
-    lift_data = lift_data_array.to_h.transform_values(&:to_i)
 
     # scrapping lift data
-    gondola = lift_data.delete('ゴンドラ')
-    lift = lift_data.values.sum
 
     # formatting difficulty data
     difficulty_data_array = c_doc.search("#Technique tbody tr td").map do |element|
@@ -161,9 +177,9 @@ class Sns::ResortScrapper < ApplicationService
 
     # scraping trail data
     trail_length = c_doc.search('#course').text.scan(/\d{1,3}(?:,\d{3})*m/).map { |x| x.gsub(/\D/, '').to_i }.sum
-    number_of_trails = course_data['コース数'].gsub(/\D/, '').to_i
-    longest_trial = course_data['最長滑走距離'].match(/\d{1,3}(?:,\d{3})*m/).to_s.gsub(/\D/, '').to_i
-    steepest_gradient = course_data['最大斜度'].gsub(/\D/, '').to_i
+    number_of_trails = course_data['コース数'].gsub(/\D/, '').to_i if course_data['コース数']
+    longest_trial = course_data['最長滑走距離'].match(/\d{1,3}(?:,\d{3})*m/).to_s.gsub(/\D/, '').to_i if course_data['最長滑走距離']
+    steepest_gradient = course_data['最大斜度'].gsub(/\D/, '').to_i if course_data['最大斜度']
 
     # getting the pictures
     course_map = c_doc.search('#CourseMap img').first
