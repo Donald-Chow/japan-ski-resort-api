@@ -37,7 +37,7 @@ class Sns::ResortScrapper < ApplicationService
     params = scrape_main_info(doc)
 
     begin
-      puts "Scrapping course info from course page instead for #{@id}"
+      puts "Scrapping course info from course page for #{@id}"
       c_doc = Nokogiri::HTML(URI.open(@course_url))
       # scrapping course information (another link)
       course_params = scrap_course_page(c_doc)
