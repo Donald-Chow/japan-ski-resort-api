@@ -23,7 +23,7 @@ class Sns::ResortScrapper < ApplicationService
       access: 'm'
     }
     @id = id ## change to variable
-    @base_url = "https://surfsnow.jp/"
+    @base_url = ENV.fetch('SNS_URL')
     @main_url = "#{@base_url}guide/htm/#{@id}s.htm"
     @weather_url = "#{@base_url}guide/htm/#{@id}#{@suffix[:weather]}.htm"
     @course_url = "#{@base_url}guide/htm/#{@id}#{@suffix[:course]}.htm"

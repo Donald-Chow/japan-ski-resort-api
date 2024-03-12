@@ -4,7 +4,7 @@ require 'open-uri'
 module Sns
   class GetId < ApplicationService
     def initialize
-      @url = "https://surfsnow.jp/search/list/spl_area01.php?areacdl="
+      @url = "#{ENV.fetch('SNS_URL')}/search/list/spl_area01.php?areacdl="
       @range = (1..7)
     end
 
