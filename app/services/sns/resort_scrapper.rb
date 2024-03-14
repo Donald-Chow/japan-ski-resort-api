@@ -1,6 +1,3 @@
-require 'nokogiri'
-require 'open-uri'
-
 class Sns::ResortScrapper < ApplicationService
   def initialize(id)
     @suffix = {

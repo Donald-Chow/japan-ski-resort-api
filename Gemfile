@@ -55,6 +55,9 @@ gem "autoprefixer-rails"
 gem "font-awesome-sass", "~> 6.1"
 gem "simple_form", github: "heartcombo/simple_form"
 
+gem 'nokogiri'
+gem 'open-uri'
+
 gem "rails_admin", "3.0"
 gem 'simple_token_authentication'
 
@@ -81,4 +84,3 @@ group :test do
   gem "selenium-webdriver"
   gem "webdrivers"
 end
-gem "sassc-rails"
